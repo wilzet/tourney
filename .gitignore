@@ -1,0 +1,6 @@
+## Build
+target/
+
+## Editor
+.vs/
+.vscode/

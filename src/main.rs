@@ -1,12 +1,8 @@
 use std::sync::{Arc, Mutex};
 use threadpool::ThreadPool;
 use rand::{prelude::*, distributions};
-
-mod game;
-mod programs;
-
-use game::{Player, play};
-use programs::*;
+use tourney::game::{Player, play};
+use tourney::programs::*;
 
 const MIN_ROUNDS: u32 = 70;
 const MAX_ROUNDS: u32 = 100;
@@ -16,13 +12,13 @@ fn main() {
     let pool = ThreadPool::with_name("Games".into(), 20);
 
     let players = vec![
-        Player::with_name_and_program("Take back 1", take_back),
-        Player::with_name_and_program("Friendly", friendly),
-        Player::with_name_and_program("Evil", evil),
-        Player::with_name_and_program("Tit for tat", tit_for_tat),
-        Player::with_name_and_program("Tit for two tats", tit_for_two_tats),
-        Player::with_name_and_program("Greedy and friendly", greedy_blue_and_friendly),
-        Player::with_name_and_program("Greedy and evil", greedy_blue_and_evil),
+        Player::with_name("Take back 1", take_back),
+        Player::with_name("Friendly", friendly),
+        Player::with_name("Evil", evil),
+        Player::with_name("Tit for tat", tit_for_tat),
+        Player::with_name("Tit for two tats", tit_for_two_tats),
+        Player::with_name("Greedy and friendly", greedy_blue_and_friendly),
+        Player::with_name("Greedy and evil", greedy_blue_and_evil),
     ];
 
     let scores = init_scores(players.len());
@@ -114,8 +110,8 @@ mod tests {
         let pool = ThreadPool::with_name("Games".into(), 20);
 
         let players = vec![
-            Player::with_name_and_program("1", greedy_blue_and_evil),
-            Player::with_name_and_program("2", take_back),
+            Player::with_name("1", greedy_blue_and_evil),
+            Player::with_name("2", take_back),
         ];
 
         let scores = init_scores(players.len());

@@ -24,12 +24,12 @@ impl Player {
         }
     }
 
-    pub fn with_name_and_program(name: String, program: Program) -> Player {
+    pub fn with_name_and_program(name: &str, program: Program) -> Player {
         Player::new().set_name(name).set_program(program)
     }
 
-    pub fn set_name(mut self, name: String) -> Player {
-        self.name = Some(name);
+    pub fn set_name(mut self, name: &str) -> Player {
+        self.name = Some(String::from(name));
         self
     }
 
@@ -38,16 +38,19 @@ impl Player {
         self
     }
 
-    pub fn get_name(&self) -> String {
+    pub fn get_name(&self) -> &str {
         match &self.name {
-            Some(name) => String::from(name),
-            None => String::from(""),
+            Some(name) => name,
+            None => "",
         }
     }
 
     fn make_move(&self, last_moves: &[Move]) -> Ply {
-        let func = self.program.unwrap();
-        func(last_moves)
+        if let Some(func) = self.program {
+            return func(last_moves);
+        }
+
+        panic!("{0} does not have a program", self.get_name());
     }
 }
 
@@ -84,5 +87,47 @@ pub fn play(player1: Player, player2: Player, rounds: u32) -> (i32, i32) {
         (scores.0, scores.1 * 2)
     } else {
         scores
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::programs::greedy_blue_and_friendly;
+
+    fn test_strategy(last_moves: &[Move]) -> Ply {
+        if let Some(last_move) = last_moves.last() {
+            if last_move.0 == Ply::Green {
+                return Ply::Red;
+            }
+
+            return Ply::Green;
+        }
+
+        Ply::Blue
+    }
+
+    #[test]
+    #[should_panic(expected = "does not have a program")]
+    fn make_move_test() {
+        Player::new().make_move(&[]);
+    }
+
+    #[test]
+    fn get_player_name_test() {
+        let p = Player::with_name_and_program("name", test_strategy);
+        assert_eq!(p.get_name(), "name");
+        assert_ne!(p.get_name(), Player::new().get_name());
+        assert_eq!(Player::new().set_name("name").get_name(), p.get_name());
+    }
+
+    #[test]
+    fn simple_play_test() {
+        let p_1 = Player::with_name_and_program("Test", test_strategy);
+        let p_2 = Player::new().set_program(greedy_blue_and_friendly);
+
+        assert_eq!(play(p_1.clone(), p_2.clone(), 10), (21, 14));
+        assert_eq!(play(p_1.clone(), p_1.clone(), 100), (149, 149));
+        assert_ne!(p_1.get_name(), p_2.get_name());
     }
 }

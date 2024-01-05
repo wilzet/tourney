@@ -16,19 +16,18 @@ fn main() {
     let pool = ThreadPool::with_name("Games".into(), 20);
 
     let players = vec![
-        Player::with_name_and_program("Take back 1".into(), take_back),
-        Player::with_name_and_program("Friendly".into(), friendly),
-        Player::with_name_and_program("Evil".into(), evil),
-        Player::with_name_and_program("Tit for tat".into(), tit_for_tat),
-        Player::with_name_and_program("Tit for two tats".into(), tit_for_two_tats),
-        Player::with_name_and_program("Greedy and friendly".into(), greedy_blue_and_friendly),
-        Player::with_name_and_program("Greedy and evil".into(), greedy_blue_and_evil),
+        Player::with_name_and_program("Take back 1", take_back),
+        Player::with_name_and_program("Friendly", friendly),
+        Player::with_name_and_program("Evil", evil),
+        Player::with_name_and_program("Tit for tat", tit_for_tat),
+        Player::with_name_and_program("Tit for two tats", tit_for_two_tats),
+        Player::with_name_and_program("Greedy and friendly", greedy_blue_and_friendly),
+        Player::with_name_and_program("Greedy and evil", greedy_blue_and_evil),
     ];
 
     let scores = init_scores(players.len());
     let rounds = random_rounds(MIN_ROUNDS, MAX_ROUNDS);
 
-    println!("{rounds} rounds!");
     println!("Pairing every program... ({0} games)\n", players.len() * (players.len() + 1) / 2);
 
     for i in 0..players.len() {
@@ -55,6 +54,7 @@ fn main() {
         .collect::<Vec<_>>();
     scores.sort();
 
+    println!("{rounds} rounds!");
     for (i, v) in scores.iter().rev().enumerate() {
         println!("{0}. {2} - {1:.2}", i + 1, v.0 as f32 / players.len() as f32, v.1);
     } 
@@ -114,8 +114,8 @@ mod tests {
         let pool = ThreadPool::with_name("Games".into(), 20);
 
         let players = vec![
-            Player::with_name_and_program("1".into(), greedy_blue_and_evil),
-            Player::with_name_and_program("2".into(), take_back),
+            Player::with_name_and_program("1", greedy_blue_and_evil),
+            Player::with_name_and_program("2", take_back),
         ];
 
         let scores = init_scores(players.len());
@@ -136,7 +136,7 @@ mod tests {
             .collect::<Vec<_>>();
         scores.sort();
 
-        assert_eq!(scores, [(5, "2".into()), (36, "1".into())]);
+        assert_eq!(scores, [(5, "2"), (36, "1")]);
     }
 
     #[test]

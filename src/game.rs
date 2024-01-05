@@ -13,28 +13,23 @@ type Program = fn(&[Move]) -> Ply;
 #[derive(Clone)]
 pub struct Player {
     name: Option<String>,
-    program: Option<Program>,
+    program: Program,
 }
 
 impl Player {
-    pub fn new() -> Player {
+    pub fn new(program: Program) -> Player {
         Player {
             name: None,
-            program: None,
+            program,
         }
     }
 
     pub fn with_name_and_program(name: &str, program: Program) -> Player {
-        Player::new().set_name(name).set_program(program)
+        Player::new(program).set_name(name)
     }
 
     pub fn set_name(mut self, name: &str) -> Player {
         self.name = Some(String::from(name));
-        self
-    }
-
-    pub fn set_program(mut self, program: Program) -> Player {
-        self.program = Some(program);
         self
     }
 
@@ -46,11 +41,7 @@ impl Player {
     }
 
     fn make_move(&self, last_moves: &[Move]) -> Ply {
-        if let Some(func) = self.program {
-            return func(last_moves);
-        }
-
-        panic!("{0} does not have a program", self.get_name());
+        (self.program)(last_moves)
     }
 }
 
@@ -110,21 +101,21 @@ mod tests {
     #[test]
     #[should_panic(expected = "does not have a program")]
     fn make_move_test() {
-        Player::new().make_move(&[]);
+        assert!(Player::new(test_strategy).make_move(&[]) == Ply::Blue);
     }
 
     #[test]
     fn get_player_name_test() {
         let p = Player::with_name_and_program("name", test_strategy);
         assert_eq!(p.get_name(), "name");
-        assert_ne!(p.get_name(), Player::new().get_name());
-        assert_eq!(Player::new().set_name("name").get_name(), p.get_name());
+        assert_ne!(p.get_name(), Player::new(test_strategy).get_name());
+        assert_eq!(Player::new(test_strategy).set_name("name").get_name(), p.get_name());
     }
 
     #[test]
     fn simple_play_test() {
         let p_1 = Player::with_name_and_program("Test", test_strategy);
-        let p_2 = Player::new().set_program(greedy_blue_and_friendly);
+        let p_2 = Player::new(greedy_blue_and_friendly);
 
         assert_eq!(play(p_1.clone(), p_2.clone(), 10), (21, 14));
         assert_eq!(play(p_1.clone(), p_1.clone(), 100), (149, 149));

@@ -45,14 +45,13 @@ impl Player {
         }
     }
 
-    fn make_move(&self, last_move: &[Move]) -> Ply {
+    fn make_move(&self, last_moves: &[Move]) -> Ply {
         let func = self.program.unwrap();
-        func(last_move)
+        func(last_moves)
     }
 }
 
 pub fn play(player1: Player, player2: Player, rounds: u32) -> (i32, i32) {
-    let mut scores = (0, 0);
     let mut last_moves = Vec::new();
     for _ in 0..rounds {
         let player1_move = player1.make_move(&last_moves);
@@ -62,43 +61,20 @@ pub fn play(player1: Player, player2: Player, rounds: u32) -> (i32, i32) {
             .collect::<Vec<Move>>();
         let player2_move = player2.make_move(&last_moves_swapped);
 
-        let this_move = (player1_move, player2_move);
-        match this_move {
-            (Ply::Red, Ply::Red) => {
-                scores.0 += 1;
-                scores.1 += 1;
-            }
-            (Ply::Red, Ply::Green) => {
-                scores.0 += 3;
-            }
-            (Ply::Green, Ply::Red) => {
-                scores.1 += 3;
-            }
-            (Ply::Green, Ply::Green) => {
-                scores.0 += 2;
-                scores.1 += 2;
-            }
-            (Ply::Blue, Ply::Blue) => (),
-            (Ply::Blue, _) => {
-                scores.0 -= 1;
-                scores.1 += 1;
-            }
-            (_, Ply::Blue) => {
-                scores.0 += 1;
-                scores.1 -= 1;
-            }
-        };
-
-        last_moves.push(this_move);
+        last_moves.push((player1_move, player2_move));
     }
 
-    let blue_count = last_moves.iter()
-        .fold((0, 0), |acc, m| {
+
+    let (scores, blue_count) = last_moves.iter()
+        .fold(((0, 0), (0, 0)), |(scores_acc, blue_count_acc), m| {
             match m {
-                (Ply::Blue, Ply::Blue) => (acc.0 + 1, acc.1 + 1),
-                (Ply::Blue, _) => (acc.0 + 1, acc.1),
-                (_, Ply::Blue) => (acc.0, acc.1 + 1),
-                _ => acc,
+                (Ply::Red, Ply::Red) => ((scores_acc.0 + 1, scores_acc.1 + 1), blue_count_acc),
+                (Ply::Red, Ply::Green) => ((scores_acc.0 + 3, scores_acc.1), blue_count_acc),
+                (Ply::Green, Ply::Red) => ((scores_acc.0, scores_acc.1 + 3), blue_count_acc),
+                (Ply::Green, Ply::Green) => ((scores_acc.0 + 2, scores_acc.1 + 2), blue_count_acc),
+                (Ply::Blue, Ply::Blue) => (scores_acc, (blue_count_acc.0 + 1, blue_count_acc.1 + 1)),
+                (Ply::Blue, _) => ((scores_acc.0 - 1, scores_acc.1 + 1), (blue_count_acc.0 + 1, blue_count_acc.1)),
+                (_, Ply::Blue) => ((scores_acc.0 + 1, scores_acc.1 - 1), (blue_count_acc.0, blue_count_acc.1 + 1)),
             }
         });
 

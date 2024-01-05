@@ -1,15 +1,19 @@
 #[derive(PartialEq, Clone, Copy)]
-pub enum Move {
-    RED,
-    GREEN,
+pub enum Ply {
+    Red,
+    Green,
+    Blue,
 }
+
+pub type Move = (Ply, Ply);
+type Program = fn(&[Move]) -> Ply;
 
 /// # Player
 /// Represents a player program
 #[derive(Clone)]
 pub struct Player {
     name: Option<String>,
-    program: Option<fn(&Vec::<(Move, Move)>) -> Move>,
+    program: Option<Program>,
 }
 
 impl Player {
@@ -20,7 +24,7 @@ impl Player {
         }
     }
 
-    pub fn with_name_and_program(name: String, program: fn(&Vec::<(Move, Move)>) -> Move) -> Player {
+    pub fn with_name_and_program(name: String, program: Program) -> Player {
         Player::new().set_name(name).set_program(program)
     }
 
@@ -29,7 +33,7 @@ impl Player {
         self
     }
 
-    pub fn set_program(mut self, program: fn(&Vec::<(Move, Move)>) -> Move) -> Player {
+    pub fn set_program(mut self, program: Program) -> Player {
         self.program = Some(program);
         self
     }
@@ -41,7 +45,7 @@ impl Player {
         }
     }
 
-    fn make_move(&self, last_move: &Vec::<(Move, Move)>) -> Move {
+    fn make_move(&self, last_move: &[Move]) -> Ply {
         let func = self.program.unwrap();
         func(last_move)
     }
@@ -49,35 +53,60 @@ impl Player {
 
 pub fn play(player1: Player, player2: Player, rounds: u32) -> (i32, i32) {
     let mut scores = (0, 0);
-    let mut last_moves = vec![];
+    let mut last_moves = Vec::new();
     for _ in 0..rounds {
         let player1_move = player1.make_move(&last_moves);
 
         let last_moves_swapped = last_moves.iter()
             .map(|moves| (moves.1, moves.0))
-            .collect();
+            .collect::<Vec<Move>>();
         let player2_move = player2.make_move(&last_moves_swapped);
-        
-        last_moves.push((player1_move, player2_move));
 
-        match last_moves.last() {
-            Some((Move::RED, Move::RED)) => {
+        let this_move = (player1_move, player2_move);
+        match this_move {
+            (Ply::Red, Ply::Red) => {
                 scores.0 += 1;
                 scores.1 += 1;
             }
-            Some((Move::RED, Move::GREEN)) => {
-                scores.0 += 5;
-            }
-            Some((Move::GREEN, Move::RED)) => {
-                scores.1 += 5;
-            }
-            Some((Move::GREEN, Move::GREEN)) => {
+            (Ply::Red, Ply::Green) => {
                 scores.0 += 3;
+            }
+            (Ply::Green, Ply::Red) => {
                 scores.1 += 3;
             }
-            _ => (),
+            (Ply::Green, Ply::Green) => {
+                scores.0 += 2;
+                scores.1 += 2;
+            }
+            (Ply::Blue, Ply::Blue) => (),
+            (Ply::Blue, _) => {
+                scores.0 -= 1;
+                scores.1 += 1;
+            }
+            (_, Ply::Blue) => {
+                scores.0 += 1;
+                scores.1 -= 1;
+            }
         };
+
+        last_moves.push(this_move);
     }
 
-    scores
+    let blue_count = last_moves.iter()
+        .fold((0, 0), |acc, m| {
+            match m {
+                (Ply::Blue, Ply::Blue) => (acc.0 + 1, acc.1 + 1),
+                (Ply::Blue, _) => (acc.0 + 1, acc.1),
+                (_, Ply::Blue) => (acc.0, acc.1 + 1),
+                _ => acc,
+            }
+        });
+
+    if blue_count.0 > blue_count.1 {
+        (scores.0 * 2, scores.1)
+    } else if blue_count.0 < blue_count.1 {
+        (scores.0, scores.1 * 2)
+    } else {
+        scores
+    }
 }

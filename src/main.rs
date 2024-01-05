@@ -1,5 +1,4 @@
 use threadpool::ThreadPool;
-use rand::{prelude::*, distributions::Uniform};
 
 mod game;
 mod programs;
@@ -21,14 +20,14 @@ fn main() {
         Player::with_name_and_program("Tit for two tats".into(), tit_for_two_tats)
     ];
 
-    let range = Uniform::from(0..players.len());
-    let mut rng = rand::thread_rng();
+    for i in 0..players.len() {
+        for j in 0..players.len() {
+            if i > j {
+                continue;
+            }
 
-    for _ in 0..10 {
-        let i = range.sample(&mut rng);
-        let j = range.sample(&mut rng);
-
-        add_game(players[i].clone(), players[j].clone(), &pool);
+            add_game(players[i].clone(), players[j].clone(), &pool);
+        }
     }
 
     pool.join();

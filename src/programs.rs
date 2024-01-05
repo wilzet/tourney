@@ -77,3 +77,59 @@ pub fn greedy_blue_and_evil(last_moves: &[Move]) -> Ply {
         Ply::Blue
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn friendly_prisoner_test() {
+        assert!(friendly(&[]) == Ply::Green);
+        assert!(friendly(&[(Ply::Green, Ply::Red)]) == Ply::Green);
+    }
+
+    #[test]
+    fn evil_prisoner_test() {
+        assert!(evil(&[]) == Ply::Red);
+        assert!(evil(&[(Ply::Red, Ply::Green)]) == Ply::Red);
+    }
+
+    #[test]
+    fn tit_for_tat_prisoner_test() {
+        assert!(tit_for_tat(&[]) == Ply::Green);
+        assert!(tit_for_tat(&[(Ply::Green, Ply::Red)]) == Ply::Red);
+        assert!(tit_for_tat(&[(Ply::Green, Ply::Green)]) == Ply::Green);
+    }
+
+    #[test]
+    fn take_back_prisoner_test() {
+        assert!(take_back(&[]) == Ply::Green);
+        assert!(take_back(&[(Ply::Green, Ply::Green)]) == Ply::Green);
+        assert!(take_back(&[(Ply::Green, Ply::Red)]) == Ply::Red);
+        assert!(take_back(&[(Ply::Red, Ply::Green)]) == Ply::Green);
+        assert!(take_back(&[(Ply::Red, Ply::Red)]) == Ply::Green);
+    }
+
+    #[test]
+    fn tit_for_two_tats_prisoner_test() {
+        assert!(tit_for_two_tats(&[]) == Ply::Green);
+        assert!(tit_for_two_tats(&[(Ply::Green, Ply::Red)]) == Ply::Green);
+        assert!(tit_for_two_tats(&[(Ply::Green, Ply::Red), (Ply::Green, Ply::Red)]) == Ply::Red);
+    }
+
+    #[test]
+    fn greedy_blue_and_evil_test() {
+        assert!(greedy_blue_and_evil(&[]) == Ply::Blue);
+        assert!(greedy_blue_and_evil(&[(Ply::Blue, Ply::Red)]) == Ply::Red);
+        assert!(greedy_blue_and_evil(&[(Ply::Blue, Ply::Blue), (Ply::Blue, Ply::Green)]) == Ply::Red);
+        assert!(greedy_blue_and_evil(&[(Ply::Blue, Ply::Red), (Ply::Red, Ply::Blue)]) == Ply::Blue);
+    }
+
+    #[test]
+    fn greedy_blue_and_friendly_test() {
+        assert!(greedy_blue_and_friendly(&[]) == Ply::Blue);
+        assert!(greedy_blue_and_friendly(&[(Ply::Blue, Ply::Red)]) == Ply::Green);
+        assert!(greedy_blue_and_friendly(&[(Ply::Blue, Ply::Blue), (Ply::Blue, Ply::Green)]) == Ply::Green);
+        assert!(greedy_blue_and_friendly(&[(Ply::Blue, Ply::Red), (Ply::Red, Ply::Blue)]) == Ply::Blue);
+    }
+}

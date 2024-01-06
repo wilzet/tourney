@@ -1,21 +1,21 @@
 //! `game` contains all necessities to play the game (described [here](https://github.com/wilzet/tourney)).
 
-/// A ply is a turn taken by one [player](Player). Two plies make a [move](Move).
+/// One color option is picked by each [player](Player) every turn. A pair of colors make a [move](Move).
 #[derive(PartialEq, Clone, Copy)]
-pub enum Ply {
+pub enum Color {
     /// Non-cooperative.
     Red,
     /// Cooperative.
     Green,
-    /// The player with the most blue plies gets their score doubled at the end of the game.
+    /// The player with the most blue options gets their score doubled at the end of the game.
     Blue,
 }
 
-/// A move is a pair of each players' [ply](Ply).
-pub type Move = (Ply, Ply);
+/// A move is a pair of each players' [color option](Color).
+pub type Move = (Color, Color);
 
 /// The type defintion for a [player program](Player).
-pub type Program = fn(&[Move]) -> Ply;
+pub type Program = fn(&[Move]) -> Color;
 
 /// Represents a player program.
 /// 
@@ -37,17 +37,17 @@ impl Player {
     /// # Examples
     /// 
     /// ```
-    /// use tourney::game::{Player, Ply, Move};
+    /// use tourney::game::{Player, Color, Move};
     /// 
     /// // Create a player program
-    /// fn example_tit_for_tat_program(last_moves: &[Move]) -> Ply {
+    /// fn example_tit_for_tat_program(last_moves: &[Move]) -> Color {
     ///     if let Some(last_move) = last_moves.last() {
-    ///         if last_move.1 == Ply::Red {
-    ///             return Ply::Red;
+    ///         if last_move.1 == Color::Red {
+    ///             return Color::Red;
     ///         }
     ///     }
     ///
-    ///     Ply::Green
+    ///     Color::Green
     /// }
     /// 
     /// // Create a player
@@ -71,10 +71,10 @@ impl Player {
     /// 
     /// View [`new`](Player::new) for a full example of a player program.
     /// ```
-    /// # use tourney::game::{Player, Ply, Move};
+    /// # use tourney::game::{Player, Color, Move};
     /// #
-    /// # fn example_program(last_moves: &[Move]) -> Ply {
-    /// #     Ply::Green
+    /// # fn example_program(last_moves: &[Move]) -> Color {
+    /// #     Color::Green
     /// # }
     /// // Create a player with a name
     /// let player = Player::with_name("Player Name", example_program);
@@ -92,10 +92,10 @@ impl Player {
     /// # Examples
     /// 
     /// ```
-    /// # use tourney::game::{Player, Ply, Move};
+    /// # use tourney::game::{Player, Color, Move};
     /// #
-    /// # fn example_program(last_moves: &[Move]) -> Ply {
-    /// #     Ply::Green
+    /// # fn example_program(last_moves: &[Move]) -> Color {
+    /// #     Color::Green
     /// # }
     /// // Create a player with a name
     /// let player = Player::with_name("Player Name", example_program);
@@ -114,10 +114,10 @@ impl Player {
     /// # Examples
     /// 
     /// ```
-    /// # use tourney::game::{Player, Ply, Move};
+    /// # use tourney::game::{Player, Color, Move};
     /// #
-    /// # fn example_program(last_moves: &[Move]) -> Ply {
-    /// #     Ply::Green
+    /// # fn example_program(last_moves: &[Move]) -> Color {
+    /// #     Color::Green
     /// # }
     /// // Create a player
     /// let player = Player::new(example_program);
@@ -133,12 +133,12 @@ impl Player {
         }
     }
 
-    /// Executes the player program in order to generate a [ply](Ply).
+    /// Executes the player program in order to generate a [color](Color).
     /// 
     /// # Arguments
     /// 
     /// * `last_moves` - A slice of [moves](Move)
-    fn make_move(&self, last_moves: &[Move]) -> Ply {
+    fn make_move(&self, last_moves: &[Move]) -> Color {
         (self.program)(last_moves)
     }
 }
@@ -151,24 +151,28 @@ impl Player {
 /// * `player_2` - A [player](Player) (may be the same as `player_1`)
 /// * `rounds` - The amount of rounds the game goes on for
 /// 
+/// # Returns
+/// 
+/// A tuple of scores as `i32` in the order the [players](Player) are added as arguments.
+/// 
 /// # Examples
 /// 
 /// ```
 /// use tourney::game::*;
 /// 
 /// // Create player programs
-/// fn example_tit_for_tat_program(last_moves: &[Move]) -> Ply {
+/// fn example_tit_for_tat_program(last_moves: &[Move]) -> Color {
 ///     if let Some(last_move) = last_moves.last() {
-///         if last_move.1 == Ply::Red {
-///             return Ply::Red;
+///         if last_move.1 == Color::Red {
+///             return Color::Red;
 ///         }
 ///     }
 ///
-///     Ply::Green
+///     Color::Green
 /// }
 /// 
-/// fn example_evil_program(last_moves: &[Move]) -> Ply {
-///     Ply::Red
+/// fn example_evil_program(last_moves: &[Move]) -> Color {
+///     Color::Red
 /// }
 /// 
 /// // Create players
@@ -200,13 +204,13 @@ pub fn play(player_1: Player, player_2: Player, rounds: u32) -> (i32, i32) {
     let (scores, blue_count) = last_moves.iter()
         .fold(((0, 0), (0, 0)), |(scores_acc, blue_count_acc), m| {
             match m {
-                (Ply::Red, Ply::Red) => ((scores_acc.0 + 1, scores_acc.1 + 1), blue_count_acc),
-                (Ply::Red, Ply::Green) => ((scores_acc.0 + 3, scores_acc.1), blue_count_acc),
-                (Ply::Green, Ply::Red) => ((scores_acc.0, scores_acc.1 + 3), blue_count_acc),
-                (Ply::Green, Ply::Green) => ((scores_acc.0 + 2, scores_acc.1 + 2), blue_count_acc),
-                (Ply::Blue, Ply::Blue) => (scores_acc, (blue_count_acc.0 + 1, blue_count_acc.1 + 1)),
-                (Ply::Blue, _) => ((scores_acc.0 - 1, scores_acc.1 + 1), (blue_count_acc.0 + 1, blue_count_acc.1)),
-                (_, Ply::Blue) => ((scores_acc.0 + 1, scores_acc.1 - 1), (blue_count_acc.0, blue_count_acc.1 + 1)),
+                (Color::Red, Color::Red) => ((scores_acc.0 + 1, scores_acc.1 + 1), blue_count_acc),
+                (Color::Red, Color::Green) => ((scores_acc.0 + 3, scores_acc.1), blue_count_acc),
+                (Color::Green, Color::Red) => ((scores_acc.0, scores_acc.1 + 3), blue_count_acc),
+                (Color::Green, Color::Green) => ((scores_acc.0 + 2, scores_acc.1 + 2), blue_count_acc),
+                (Color::Blue, Color::Blue) => (scores_acc, (blue_count_acc.0 + 1, blue_count_acc.1 + 1)),
+                (Color::Blue, _) => ((scores_acc.0 - 1, scores_acc.1 + 1), (blue_count_acc.0 + 1, blue_count_acc.1)),
+                (_, Color::Blue) => ((scores_acc.0 + 1, scores_acc.1 - 1), (blue_count_acc.0, blue_count_acc.1 + 1)),
             }
         });
 
@@ -224,21 +228,21 @@ mod tests {
     use super::*;
     use crate::programs::greedy_blue_and_friendly;
 
-    fn test_strategy(last_moves: &[Move]) -> Ply {
+    fn test_strategy(last_moves: &[Move]) -> Color {
         if let Some(last_move) = last_moves.last() {
-            if last_move.0 == Ply::Green {
-                return Ply::Red;
+            if last_move.0 == Color::Green {
+                return Color::Red;
             }
 
-            return Ply::Green;
+            return Color::Green;
         }
 
-        Ply::Blue
+        Color::Blue
     }
 
     #[test]
     fn make_move_test() {
-        assert!(Player::new(test_strategy).make_move(&[]) == Ply::Blue);
+        assert!(Player::new(test_strategy).make_move(&[]) == Color::Blue);
     }
 
     #[test]

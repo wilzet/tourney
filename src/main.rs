@@ -58,18 +58,37 @@ fn main() {
     println!("\nProgram end");
 }
 
-fn random_rounds(min_rounds: u32, max_rounds: u32) -> u32 {
-    if min_rounds > max_rounds {
+/// Uniformly randomly select an amount of rounds between `min` and `max` (inclusive).
+/// 
+/// # Arguments
+/// 
+/// * `min` - The minimum amount of rounds
+/// * `max` - The maximum amount of rounds
+/// 
+/// # Panics
+/// 
+/// If `max < min` or if `min == 0`.
+fn random_rounds(min: u32, max: u32) -> u32 {
+    if max < min {
         panic!("max_rounds cannot be less than min_rounds");
     }
 
-    if min_rounds == 0 {
+    if min == 0 {
         panic!("min_rounds cannot not be 0");
     }
 
-    distributions::Uniform::from(min_rounds..max_rounds+1).sample(&mut rand::thread_rng())
+    distributions::Uniform::from(min..max+1).sample(&mut rand::thread_rng())
 }
 
+/// Create a vector of atomically reference counted and mutable score counters.
+/// 
+/// # Arguments
+/// 
+/// * `length` - The length of the vector to be created (typically `length` is equal to the amount of players)
+/// 
+/// # Panics
+/// 
+/// If `length == 0`.
 fn init_scores(length: usize) -> Vec<Arc<Mutex<i32>>> {
     if length == 0 {
         panic!("Cannot initialize with a length of 0");
@@ -83,10 +102,19 @@ fn init_scores(length: usize) -> Vec<Arc<Mutex<i32>>> {
     scores
 }
 
-fn add_game(player1: Player, player2: Player, pool: &ThreadPool, rounds: u32, score_totals: (Arc<Mutex<i32>>, Arc<Mutex<i32>>)) {
+/// Add a game as a job to the provided threadpool `pool`.
+/// 
+/// # Arguments
+/// 
+/// * `player_1`- A [player](Player)
+/// * `player_2`- A [player](Player) (may be the same as `player_1`)
+/// * `pool` - The threadpool to execute the game
+/// * `rounds` - The amount of rounds to play the game
+/// * `score_totals` - Total score values for the players in the tournament
+fn add_game(player_1: Player, player_2: Player, pool: &ThreadPool, rounds: u32, score_totals: (Arc<Mutex<i32>>, Arc<Mutex<i32>>)) {
     pool.execute(move || {
-        let name = format!("{0:>20}  vs.  {1:<20}", player1.get_name(), player2.get_name());
-        let scores = play(player1, player2, rounds);
+        let name = format!("{0:>20}  vs.  {1:<20}", player_1.get_name(), player_2.get_name());
+        let scores = play(player_1, player_2, rounds);
 
         let output = format!("{0}   {1:>3} - {2:<3}", name, scores.0, scores.1);
         println!("{output}\n");
@@ -121,6 +149,14 @@ mod tests {
             players[1].clone(),
             &pool,
             10,
+            (scores[0].clone(), scores[1].clone())
+        );
+
+        add_game(
+            players[0].clone(),
+            players[1].clone(),
+            &pool,
+            0,
             (scores[0].clone(), scores[1].clone())
         );
 

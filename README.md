@@ -1,11 +1,11 @@
 # Tourney
-A program that runs a game tournament in parallell.
+A program that runs a game tournament in parallel.
 
 # The Game
 The game being played is a 'game-theory' game similar to the [prisoner's dilemma](https://en.wikipedia.org/wiki/Prisoner%27s_dilemma); simple and only contains a few rules and possible options for each participant.
 ## Rules
-The game is played in a non-deterministic amount of rounds. A round, or a move, consists of each player choosing a ply. Each player has full knowledge of all moves that has been played this game.
-1. There are three possible plies:<br>
+The game is played in a non-deterministic amount of rounds. A round, or a move, consists of each player choosing a collor. Each player has full knowledge of all moves that has been played this game.
+1. There are three possible color options:<br>
   🔴 Red<br>
   🟢 Green<br>
   🔵 Blue
@@ -21,7 +21,11 @@ The game is played in a non-deterministic amount of rounds. A round, or a move, 
   
   * Notice that the upper left 2x2 matrix corresponds to the prisoner's dilemma.
   * Also notice that choosing blue essentially equals giving your opponent one of your own points.
-3. At the end of all rounds, the player that has played the most blue ply's gets their score multiplied by 2.
+3. At the end of all rounds, the player that has played the most blue color options gets their score multiplied by 2.
+The player with the highest score is deemed the winner.
+
+# Tournament
+In its current state, the tournament has all participating programs playing against eachother for one game each. At the end of the tournament programs are listed in descending order according to their average score across their games.
 
 # Acknowledgements
 The creation of this project was inspired by [this video](https://www.youtube.com/watch?v=mScpHTIi-kM).

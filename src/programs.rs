@@ -1,3 +1,5 @@
+use std::cmp;
+use rand::{prelude::*, distributions};
 use crate::game::{Color, Move};
 
 pub fn take_back_once_prisoner(last_moves: &[Move]) -> Color {
@@ -18,7 +20,7 @@ pub fn evil(_last_moves: &[Move]) -> Color {
     Color::Red
 }
 
-pub fn greedy_blue(_last_moves: &[Move]) -> Color {
+pub fn blue(_last_moves: &[Move]) -> Color {
     Color::Blue
 }
 
@@ -82,6 +84,61 @@ pub fn greedy_blue_and_evil(last_moves: &[Move]) -> Color {
     }
 }
 
+pub fn try_to_guess(last_moves: &[Move]) -> Color {
+    let mut belief = (0, 0, 0);
+    last_moves.iter()
+        .for_each(|x| match x.1 {
+            Color::Red => belief.0 += 1,
+            Color::Green => belief.2 += 1,
+            Color::Blue => belief.1 += 1,
+        });
+    
+    let opponent_move = match belief.0.cmp(&belief.1) {
+        cmp::Ordering::Less => match belief.1.cmp(&belief.2) {
+            cmp::Ordering::Less => Color::Blue,
+            cmp::Ordering::Equal => match distributions::Uniform::from(0..2).sample(&mut rand::thread_rng()) {
+                0 => Color::Green,
+                _ => Color::Blue,
+            }
+            cmp::Ordering::Greater => Color::Green,
+        }
+        cmp::Ordering::Equal => match belief.1.cmp(&belief.2) {
+            cmp::Ordering::Less => Color::Blue,
+            cmp::Ordering::Equal => match distributions::Uniform::from(0..3).sample(&mut rand::thread_rng()) {
+                0 => Color::Red,
+                1 => Color::Green,
+                _ => Color::Blue,
+            }
+            cmp::Ordering::Greater => match distributions::Uniform::from(0..2).sample(&mut rand::thread_rng()) {
+                0 => Color::Red,
+                _ => Color::Green,
+            },
+        }
+        cmp::Ordering::Greater => match belief.0.cmp(&belief.2) {
+            cmp::Ordering::Less => Color::Blue,
+            cmp::Ordering::Equal => match distributions::Uniform::from(0..2).sample(&mut rand::thread_rng()) {
+                0 => Color::Red,
+                _ => Color::Blue,
+            }
+            cmp::Ordering::Greater => Color::Red,
+        }
+    };
+
+    match opponent_move {
+        Color::Red => Color::Red,
+        Color::Green => Color::Red,
+        Color::Blue => Color::Green,
+    }
+}
+
+pub fn random(_last_moves: &[Move]) -> Color {
+    match distributions::Uniform::from(0..3).sample(&mut rand::thread_rng()) {
+        0 => Color::Red,
+        1 => Color::Green,
+        _ => Color::Blue,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -100,8 +157,8 @@ mod tests {
 
     #[test]
     fn greedy_blue_test() {
-        assert!(greedy_blue(&[]) == Color::Blue);
-        assert!(greedy_blue(&[(Color::Blue, Color::Red)]) == Color::Blue);
+        assert!(blue(&[]) == Color::Blue);
+        assert!(blue(&[(Color::Blue, Color::Red)]) == Color::Blue);
     }
 
     #[test]

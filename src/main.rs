@@ -12,11 +12,11 @@ fn main() {
     let pool = ThreadPool::with_name("Games".into(), 20);
 
     let players = vec![
-        Player::with_name("Take back 1", take_back),
+        Player::with_name("Take back 1", take_back_once_prisoner),
         Player::with_name("Friendly", friendly),
         Player::with_name("Evil", evil),
-        Player::with_name("Tit for tat", tit_for_tat),
-        Player::with_name("Tit for two tats", tit_for_two_tats),
+        Player::with_name("Tit for tat", tit_for_tat_prisoner),
+        Player::with_name("Tit for two tats", tit_for_two_tats_prisoner),
         Player::with_name("Greedy and friendly", greedy_blue_and_friendly),
         Player::with_name("Greedy and evil", greedy_blue_and_evil),
     ];
@@ -139,7 +139,7 @@ mod tests {
 
         let players = vec![
             Player::with_name("1", greedy_blue_and_evil),
-            Player::with_name("2", take_back),
+            Player::with_name("2", take_back_once_prisoner),
         ];
 
         let scores = init_scores(players.len());

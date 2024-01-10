@@ -1,6 +1,6 @@
 use crate::game::{Color, Move};
 
-pub fn take_back(last_moves: &[Move]) -> Color {
+pub fn take_back_once_prisoner(last_moves: &[Move]) -> Color {
     if let Some(last_move) = last_moves.last() {
         if last_move.0 == Color::Green && last_move.1 == Color::Red {
             return Color::Red;
@@ -18,7 +18,11 @@ pub fn evil(_last_moves: &[Move]) -> Color {
     Color::Red
 }
 
-pub fn tit_for_tat(last_moves: &[Move]) -> Color {
+pub fn greedy_blue(_last_moves: &[Move]) -> Color {
+    Color::Blue
+}
+
+pub fn tit_for_tat_prisoner(last_moves: &[Move]) -> Color {
     if let Some(last_move) = last_moves.last() {
         if last_move.1 == Color::Red {
             return Color::Red;
@@ -28,7 +32,7 @@ pub fn tit_for_tat(last_moves: &[Move]) -> Color {
     Color::Green
 }
 
-pub fn tit_for_two_tats(last_moves: &[Move]) -> Color {
+pub fn tit_for_two_tats_prisoner(last_moves: &[Move]) -> Color {
     if last_moves.len() < 2 {
         return Color::Green;
     }
@@ -83,38 +87,44 @@ mod tests {
     use super::*;
 
     #[test]
-    fn friendly_prisoner_test() {
+    fn friendly_test() {
         assert!(friendly(&[]) == Color::Green);
         assert!(friendly(&[(Color::Green, Color::Red)]) == Color::Green);
     }
 
     #[test]
-    fn evil_prisoner_test() {
+    fn evil_test() {
         assert!(evil(&[]) == Color::Red);
         assert!(evil(&[(Color::Red, Color::Green)]) == Color::Red);
     }
 
     #[test]
+    fn greedy_blue_test() {
+        assert!(greedy_blue(&[]) == Color::Blue);
+        assert!(greedy_blue(&[(Color::Blue, Color::Red)]) == Color::Blue);
+    }
+
+    #[test]
     fn tit_for_tat_prisoner_test() {
-        assert!(tit_for_tat(&[]) == Color::Green);
-        assert!(tit_for_tat(&[(Color::Green, Color::Red)]) == Color::Red);
-        assert!(tit_for_tat(&[(Color::Green, Color::Green)]) == Color::Green);
+        assert!(tit_for_tat_prisoner(&[]) == Color::Green);
+        assert!(tit_for_tat_prisoner(&[(Color::Green, Color::Red)]) == Color::Red);
+        assert!(tit_for_tat_prisoner(&[(Color::Green, Color::Green)]) == Color::Green);
     }
 
     #[test]
     fn take_back_prisoner_test() {
-        assert!(take_back(&[]) == Color::Green);
-        assert!(take_back(&[(Color::Green, Color::Green)]) == Color::Green);
-        assert!(take_back(&[(Color::Green, Color::Red)]) == Color::Red);
-        assert!(take_back(&[(Color::Red, Color::Green)]) == Color::Green);
-        assert!(take_back(&[(Color::Red, Color::Red)]) == Color::Green);
+        assert!(take_back_once_prisoner(&[]) == Color::Green);
+        assert!(take_back_once_prisoner(&[(Color::Green, Color::Green)]) == Color::Green);
+        assert!(take_back_once_prisoner(&[(Color::Green, Color::Red)]) == Color::Red);
+        assert!(take_back_once_prisoner(&[(Color::Red, Color::Green)]) == Color::Green);
+        assert!(take_back_once_prisoner(&[(Color::Red, Color::Red)]) == Color::Green);
     }
 
     #[test]
     fn tit_for_two_tats_prisoner_test() {
-        assert!(tit_for_two_tats(&[]) == Color::Green);
-        assert!(tit_for_two_tats(&[(Color::Green, Color::Red)]) == Color::Green);
-        assert!(tit_for_two_tats(&[(Color::Green, Color::Red), (Color::Green, Color::Red)]) == Color::Red);
+        assert!(tit_for_two_tats_prisoner(&[]) == Color::Green);
+        assert!(tit_for_two_tats_prisoner(&[(Color::Green, Color::Red)]) == Color::Green);
+        assert!(tit_for_two_tats_prisoner(&[(Color::Green, Color::Red), (Color::Green, Color::Red)]) == Color::Red);
     }
 
     #[test]

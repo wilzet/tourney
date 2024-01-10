@@ -28,5 +28,10 @@ The player with the highest score is deemed the winner. In the case of equal sco
 # Tournament
 In its current state, the tournament has all participating programs playing against eachother for one game each. At the end of the tournament programs are listed in descending order according to their average score across their games.
 
+## Example
+```console
+cargo run -- --min 100 --max 200 --games --threads 10
+```
+
 # Acknowledgements
 The creation of this project was inspired by [this video](https://www.youtube.com/watch?v=mScpHTIi-kM).

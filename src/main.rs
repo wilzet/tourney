@@ -28,7 +28,7 @@ fn main() {
         Player::with_name("Random", random),
     ];
 
-    println!("Pairing every program... ({0} games)\n", players.len() * (players.len() + 1) / 2);
+    println!("Pairing every program... ({0} games)\n", players.len() * (players.len() - 1) / 2);
 
     let scores = run(&config, &players).unwrap();
 

@@ -25,7 +25,7 @@ fn main() {
         Player::with_name("Greedy and evil", greedy_blue_and_evil),
     ];
 
-    println!("Pairing every program... ({0} games)\n", players.len() * (players.len() + 1) / 2);
+    println!("Pairing every program... ({0} games)\n", players.len() * (players.len() - 1) / 2);
 
     let scores = run(&config, &players).unwrap();
 

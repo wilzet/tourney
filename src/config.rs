@@ -3,13 +3,17 @@
 use std::sync::{Arc, Mutex};
 use rand::{prelude::*, distributions};
 use threadpool::ThreadPool;
+use constcat::concat;
 use crate::game::{Player, play};
 
 /// The default value for the minimum amount of rounds
 pub const MIN_ROUNDS: u32 = 70;
 /// The default value for the maximum amount of rounds
 pub const MAX_ROUNDS: u32 = 100;
+
 const DEFAULT_THREADS: usize = 20;
+const MAX_THREADS: usize = 64;
+const MAX_THREADS_STRING: &str = "64";
 
 /// Holds configurations for the tournament
 #[derive(Debug)]
@@ -77,10 +81,14 @@ impl Config {
                 "--threads" => {
                     if threads == 0 {
                         if let Some(value) = args.iter().skip(i + 1).next().and_then(|s| s.parse().ok()) {
-                            if value > 0 {
+                            if value > 0 && value <= MAX_THREADS {
                                 threads = value;
                                 i += 2;
                                 continue;
+                            }
+
+                            if value > MAX_THREADS {
+                                return Err(concat!("Value must be less than ", MAX_THREADS_STRING, " for argument: --threads"));
                             }
 
                             return Err("Value must be greater than 0 for argument: --threads");
@@ -279,7 +287,7 @@ fn random_rounds(min: u32, max: u32) -> u32 {
 /// 
 /// # Errors
 /// 
-/// If `players.len() == 0` an error is returned.
+/// If `players.len() < 2` an error is returned.
 /// 
 /// # Examples
 /// 
@@ -300,8 +308,8 @@ fn random_rounds(min: u32, max: u32) -> u32 {
 /// assert_eq!(scores_1, [(36, "1"), (5, "2")]);
 /// ```
 pub fn run<'a>(config: &Config, players: &'a Vec<Player>) -> Result<Vec<(i32, &'a str)>, &'static str> {
-    if players.len() == 0 {
-        return Err("No players");
+    if players.len() < 2 {
+        return Err("Too few players");
     }
 
     let player_count = players.len();

@@ -88,7 +88,7 @@ impl Config {
                             }
 
                             if value > MAX_THREADS {
-                                return Err(concat!("Value must be less than ", MAX_THREADS_STRING, " for argument: --threads"));
+                                return Err(concat!("Value must be less than or equal to", MAX_THREADS_STRING, " for argument: --threads"));
                             }
 
                             return Err("Value must be greater than 0 for argument: --threads");

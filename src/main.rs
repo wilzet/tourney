@@ -23,6 +23,9 @@ fn main() {
         Player::with_name("Tit for two tats", tit_for_two_tats_prisoner),
         Player::with_name("Greedy and friendly", greedy_blue_and_friendly),
         Player::with_name("Greedy and evil", greedy_blue_and_evil),
+        Player::with_name("Greedy blue", blue),
+        Player::with_name("Try to guess", try_to_guess),
+        Player::with_name("Random", random),
     ];
 
     println!("Pairing every program... ({0} games)\n", players.len() * (players.len() - 1) / 2);

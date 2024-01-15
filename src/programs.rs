@@ -148,6 +148,90 @@ pub fn random(_last_moves: &[Move]) -> Color {
     }
 }
 
+pub fn greedy_if_winning_else_friendly(last_moves: &[Move]) -> Color {
+    let scores = last_moves.iter()
+        .fold((0, 0), |scores_acc, m| {
+            match m {
+                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
+                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
+                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
+                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
+                (Color::Blue, Color::Blue) => scores_acc,
+                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
+                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
+            }
+        });
+    
+    if scores.0 > scores.1 {
+        return Color::Blue;
+    }
+
+    Color::Green
+}
+
+pub fn greedy_if_winning_else_evil(last_moves: &[Move]) -> Color {
+    let scores = last_moves.iter()
+        .fold((0, 0), |scores_acc, m| {
+            match m {
+                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
+                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
+                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
+                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
+                (Color::Blue, Color::Blue) => scores_acc,
+                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
+                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
+            }
+        });
+    
+    if scores.0 > scores.1 {
+        return Color::Blue;
+    }
+
+    Color::Red
+}
+
+pub fn greedy_if_2x_score_else_friendly(last_moves: &[Move]) -> Color {
+    let scores = last_moves.iter()
+        .fold((0, 0), |scores_acc, m| {
+            match m {
+                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
+                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
+                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
+                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
+                (Color::Blue, Color::Blue) => scores_acc,
+                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
+                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
+            }
+        });
+    
+    if last_moves.len() > 0 && scores.0 >= scores.1 * 2 {
+        return Color::Blue;
+    }
+
+    Color::Green
+}
+
+pub fn greedy_if_2x_score_else_evil(last_moves: &[Move]) -> Color {
+    let scores = last_moves.iter()
+        .fold((0, 0), |scores_acc, m| {
+            match m {
+                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
+                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
+                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
+                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
+                (Color::Blue, Color::Blue) => scores_acc,
+                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
+                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
+            }
+        });
+    
+    if last_moves.len() > 0 && scores.0 >= scores.1 * 2 {
+        return Color::Blue;
+    }
+
+    Color::Red
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -207,5 +291,35 @@ mod tests {
         assert!(greedy_blue_and_friendly(&[(Color::Blue, Color::Red)]) == Color::Green);
         assert!(greedy_blue_and_friendly(&[(Color::Blue, Color::Blue), (Color::Blue, Color::Green)]) == Color::Green);
         assert!(greedy_blue_and_friendly(&[(Color::Blue, Color::Red), (Color::Red, Color::Blue)]) == Color::Blue);
+    }
+
+    #[test]
+    fn greedy_if_winning_else_friendly_test() {
+        assert!(greedy_if_winning_else_friendly(&[]) == Color::Green);
+        assert!(greedy_if_winning_else_friendly(&[(Color::Green, Color::Red)]) == Color::Green);
+        assert!(greedy_if_winning_else_friendly(&[(Color::Green, Color::Blue), (Color::Blue, Color::Green)]) == Color::Green);
+        assert!(greedy_if_winning_else_friendly(&[(Color::Green, Color::Green), (Color::Green, Color::Blue)]) == Color::Blue);
+    }
+
+    #[test]
+    fn greedy_if_winning_else_evil_test() {
+        assert!(greedy_if_winning_else_evil(&[]) == Color::Red);
+        assert!(greedy_if_winning_else_evil(&[(Color::Red, Color::Red)]) == Color::Red);
+        assert!(greedy_if_winning_else_evil(&[(Color::Red, Color::Blue), (Color::Blue, Color::Green)]) == Color::Red);
+        assert!(greedy_if_winning_else_evil(&[(Color::Red, Color::Green), (Color::Blue, Color::Blue)]) == Color::Blue);
+    }
+
+    #[test]
+    fn greedy_if_2x_score_else_friendly_test() {
+        assert!(greedy_if_2x_score_else_friendly(&[]) == Color::Green);
+        assert!(greedy_if_2x_score_else_friendly(&[(Color::Green, Color::Blue)]) == Color::Blue);
+        assert!(greedy_if_2x_score_else_friendly(&[(Color::Green, Color::Green), (Color::Green, Color::Blue)]) == Color::Blue);
+    }
+
+    #[test]
+    fn greedy_if_2x_score_else_evil_test() {
+        assert!(greedy_if_2x_score_else_evil(&[]) == Color::Red);
+        assert!(greedy_if_2x_score_else_evil(&[(Color::Red, Color::Blue)]) == Color::Blue);
+        assert!(greedy_if_2x_score_else_evil(&[(Color::Red, Color::Red), (Color::Red, Color::Blue)]) == Color::Blue);
     }
 }

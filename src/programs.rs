@@ -1,5 +1,5 @@
 use std::cmp;
-use rand::{prelude::*, distributions};
+use rand::prelude::SliceRandom;
 use crate::game::{Color, Move};
 
 pub fn take_back_once_prisoner(last_moves: &[Move]) -> Color {
@@ -106,17 +106,11 @@ pub fn try_to_guess(last_moves: &[Move]) -> Color {
             // OMM is Red and Blue and Green
             // "Best" response is Red but
             // increasing the Blue count may not be bad either
-            cmp::Ordering::Equal => match distributions::Uniform::from(0..2).sample(&mut rand::thread_rng()) {
-                0 => Color::Red,
-                _ => Color::Blue,
-            }
+            cmp::Ordering::Equal => *[Color::Red, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
             // OMM is Red and Green
             // "Best" response is Red but
             // increasing the Blue count may not be bad either
-            cmp::Ordering::Greater => match distributions::Uniform::from(0..2).sample(&mut rand::thread_rng()) {
-                0 => Color::Red,
-                _ => Color::Blue,
-            }
+            cmp::Ordering::Greater => *[Color::Red, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
         }
         cmp::Ordering::Greater => match belief.0.cmp(&belief.2) {
             // OMM is Blue
@@ -125,27 +119,17 @@ pub fn try_to_guess(last_moves: &[Move]) -> Color {
             // OMM is Red and Blue
             // "Best" response is Red but
             // increasing the Blue count may not be bad either
-            cmp::Ordering::Equal => match distributions::Uniform::from(0..2).sample(&mut rand::thread_rng()) {
-                0 => Color::Red,
-                _ => Color::Blue,
-            }
+            cmp::Ordering::Equal => *[Color::Red, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
             // OMM is Red
             // "Best" response is Red but
             // increasing the Blue count may not be bad either
-            cmp::Ordering::Greater => match distributions::Uniform::from(0..2).sample(&mut rand::thread_rng()) {
-                0 => Color::Red,
-                _ => Color::Blue,
-            }
+            cmp::Ordering::Greater => *[Color::Red, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
         }
     }
 }
 
 pub fn random(_last_moves: &[Move]) -> Color {
-    match distributions::Uniform::from(0..3).sample(&mut rand::thread_rng()) {
-        0 => Color::Red,
-        1 => Color::Green,
-        _ => Color::Blue,
-    }
+    *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
 }
 
 pub fn greedy_if_winning_else_friendly(last_moves: &[Move]) -> Color {

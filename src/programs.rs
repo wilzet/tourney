@@ -216,6 +216,39 @@ pub fn greedy_if_2x_score_else_evil(last_moves: &[Move]) -> Color {
     Color::Red
 }
 
+pub fn chat_gpt_adaptive(last_moves: &[Move]) -> Color {
+    if let Some(opponent_last_move) = last_moves.last().map(|m| m.1) {
+        return match opponent_last_move {
+            Color::Red => Color::Blue,      // Defect against Red
+            Color::Green => Color::Red,     // Exploit Green's cooperation
+            Color::Blue => Color::Green,    // Cooperate if opponent chose Blue
+        };
+    }
+
+    // If no opponent moves recorded, choose randomly
+    *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
+}
+
+pub fn chat_gpt_proactive(last_moves: &[Move]) -> Color {
+    if let Some(_) = last_moves.last() {
+        // Analyze the opponent's historical moves
+        let green_count = last_moves.iter().filter(|m| m.1 == Color::Green).count();
+        let blue_count = last_moves.iter().filter(|m| m.1 == Color::Blue).count();
+
+        // Proactively choose a color based on opponent's likely strategy
+        return if green_count > blue_count {
+            // Opponent has a tendency to choose Green
+            Color::Red // Exploit by choosing Red
+        } else {
+            // Opponent has a tendency to choose Blue or mixed strategy
+            Color::Green // Cooperate by choosing Green
+        };
+    }
+
+    // If no opponent moves recorded, choose randomly
+    *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -305,5 +338,18 @@ mod tests {
         assert!(greedy_if_2x_score_else_evil(&[]) == Color::Red);
         assert!(greedy_if_2x_score_else_evil(&[(Color::Red, Color::Blue)]) == Color::Blue);
         assert!(greedy_if_2x_score_else_evil(&[(Color::Red, Color::Red), (Color::Red, Color::Blue)]) == Color::Blue);
+    }
+
+    #[test]
+    fn chat_gpt_adaptive_test() {
+        assert!(chat_gpt_adaptive(&[(Color::Green, Color::Red)]) == Color::Blue);
+        assert!(chat_gpt_adaptive(&[(Color::Green, Color::Green)]) == Color::Red);
+        assert!(chat_gpt_adaptive(&[(Color::Green, Color::Blue)]) == Color::Green);
+    }
+
+    #[test]
+    fn chat_gpt_proactive_test() {
+        assert!(chat_gpt_proactive(&[(Color::Green, Color::Green)]) == Color::Red);
+        assert!(chat_gpt_proactive(&[(Color::Green, Color::Blue)]) == Color::Green);
     }
 }

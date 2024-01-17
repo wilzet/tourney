@@ -292,7 +292,7 @@ fn random_rounds(min: u32, max: u32) -> u32 {
 /// # Examples
 /// 
 /// ```
-/// # use tourney::programs::*;
+/// # use tourney::programs::all::*;
 /// use tourney::config::*;
 /// use tourney::game::Player;
 /// 

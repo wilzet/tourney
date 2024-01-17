@@ -228,6 +228,22 @@ pub fn greedy_if_2x_score_else_random(last_moves: &[Move]) -> Color {
     *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
 }
 
+pub fn copy(last_moves: &[Move]) -> Color {
+    if let Some(last_move) = last_moves.last() {
+        return last_move.1;
+    }
+
+    *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
+}
+
+pub fn smarter_copy(last_moves: &[Move]) -> Color {
+    match last_moves.last().map(|m| m.1) {
+    Some(Color::Blue) => *[Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
+    Some(opponent_move) => opponent_move,
+    _ => *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -316,5 +332,19 @@ mod tests {
     #[test]
     fn greedy_if_2x_score_else_random_test() {
         assert!(greedy_if_2x_score_else_random(&[(Color::Red, Color::Blue)]) == Color::Blue);
+    }
+
+    #[test]
+    fn copy_test() {
+        assert!(copy(&[(Color::Red, Color::Red)]) == Color::Red);
+        assert!(copy(&[(Color::Red, Color::Green)]) == Color::Green);
+        assert!(copy(&[(Color::Red, Color::Blue)]) == Color::Blue);
+    }
+
+    #[test]
+    fn smarter_copy_test() {
+        assert!(copy(&[(Color::Red, Color::Red)]) == Color::Red);
+        assert!(copy(&[(Color::Red, Color::Green)]) == Color::Green);
+        assert!(copy(&[(Color::Red, Color::Blue)]) != Color::Red);
     }
 }

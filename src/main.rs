@@ -32,6 +32,8 @@ fn main() {
         Player::with_name("Cooperate until defection", cooperate_until_defection),
         Player::with_name("Random, greedy if winning", greedy_if_winning_else_random),
         Player::with_name("Random, greedy if 2x", greedy_if_2x_score_else_random),
+        Player::with_name("Copy opponent", copy),
+        Player::with_name("Copy opponent, unless blue", smarter_copy),
     ];
 
     println!("Pairing every program... ({0} games)\n", players.len() * (players.len() - 1) / 2);

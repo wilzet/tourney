@@ -32,6 +32,7 @@ fn main() {
         Player::with_name("Evil, greedy if 2x", greedy_if_2x_score_else_evil),
         Player::with_name("ChatGPT adaptive", chat_gpt_adaptive),
         Player::with_name("ChatGPT proactive", chat_gpt_proactive),
+        Player::with_name("ChatGPT versatile", chat_gpt_versatile),
     ];
 
     println!("Pairing every program... ({0} games)\n", players.len() * (players.len() - 1) / 2);

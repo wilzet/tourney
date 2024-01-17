@@ -1,5 +1,5 @@
 use std::cmp;
-use rand::prelude::SliceRandom;
+use rand::prelude::*;
 use crate::game::{Color, Move};
 
 pub fn take_back_once_prisoner(last_moves: &[Move]) -> Color {
@@ -246,6 +246,20 @@ pub fn chat_gpt_proactive(last_moves: &[Move]) -> Color {
 
     // If no opponent moves recorded, choose randomly
     *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
+}
+
+pub fn chat_gpt_versatile(last_moves: &[Move]) -> Color {
+    if last_moves.is_empty() || rand::thread_rng().gen::<f64>() < 0.5 {
+        // Introduce randomness or choose randomly if no history
+        return *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap();
+    }
+
+    // Follow the opponent's recent move
+    match last_moves.last().map(|m| m.1) {
+        Some(Color::Red) => Color::Blue,
+        Some(Color::Green) => Color::Red,
+        _ => Color::Green,
+    }
 }
 
 #[cfg(test)]

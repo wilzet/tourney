@@ -88,7 +88,7 @@ impl Config {
                             }
 
                             if value > MAX_THREADS {
-                                return Err(concat!("Value must be less than or equal to", MAX_THREADS_STRING, " for argument: --threads"));
+                                return Err(concat!("Value must be less than or equal to ", MAX_THREADS_STRING, " for argument: --threads"));
                             }
 
                             return Err("Value must be greater than 0 for argument: --threads");
@@ -135,8 +135,8 @@ impl Config {
     /// 
     /// * `--min <u32>` - The minimum amount of rounds
     /// * `--max <u32>` - The maximum amount of rounds
-    /// * `--games` - Displays all games outcomes if this is provided
-    /// * `--threads` - Specify the amount of threads used
+    /// * `--games` - Displays all the games outcomes if this is provided
+    /// * `--threads <u32>` - Specify the amount of threads used
     /// 
     /// If only `--min` is provided, the config will have `rounds == --min`.
     /// Likewise if only `--max` is provided, the config will have `rounds == --max`.
@@ -182,7 +182,7 @@ impl Config {
         Config {
             rounds: random_rounds(MIN_ROUNDS, MAX_ROUNDS),
             show_games: false,
-            threadpool: ThreadPool::with_name("Games".into(), 20),
+            threadpool: ThreadPool::with_name("Games".into(), DEFAULT_THREADS),
         }
     }
 

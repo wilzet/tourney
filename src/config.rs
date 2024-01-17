@@ -1,6 +1,6 @@
 //! `config` contains logic for configuring and running the tournament
 
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}, cmp::Ordering};
 use rand::{prelude::*, distributions};
 use threadpool::ThreadPool;
 use constcat::concat;
@@ -207,7 +207,7 @@ impl Config {
     /// * `player_1`- A [player](Player)
     /// * `player_2`- A [player](Player) (may be the same as `player_1`)
     /// * `score_totals` - Total score values for the players in the tournament
-    fn add_game(&self, player_1: Player, player_2: Player, score_totals: (Arc<Mutex<i32>>, Arc<Mutex<i32>>)) {
+    fn add_game(&self, player_1: Player, player_2: Player, score_totals: (Arc<Mutex<(i32, i32)>>, Arc<Mutex<(i32, i32)>>)) {
         let rounds = self.rounds;
         let show_games = self.show_games;
         self.threadpool.execute(move || {
@@ -220,17 +220,27 @@ impl Config {
             }
     
             if let Ok(mut score) = score_totals.0.lock() {
-                *score += scores.0;
+                score.0 += scores.0;
+                score.1 += match scores.0.cmp(&scores.1) {
+                    Ordering::Less => -1,
+                    Ordering::Equal => 0,
+                    Ordering::Greater => 1,
+                }
             }
     
             if let Ok(mut score) = score_totals.1.lock() {
-                *score += scores.1;
+                score.0 += scores.1;
+                score.1 += match scores.1.cmp(&scores.0) {
+                    Ordering::Less => -1,
+                    Ordering::Equal => 0,
+                    Ordering::Greater => 1,
+                }
             }
         });
     }
 }
 
-/// Create a vector of atomically reference counted and mutable score counters.
+/// Create a vector of atomically reference counted and mutable score and relative win counters.
 /// 
 /// # Arguments
 /// 
@@ -239,14 +249,14 @@ impl Config {
 /// # Panics
 /// 
 /// If `length == 0`.
-fn init_scores(length: usize) -> Vec<Arc<Mutex<i32>>> {
+fn init_scores(length: usize) -> Vec<Arc<Mutex<(i32, i32)>>> {
     if length == 0 {
         panic!("Cannot initialize scores with a length of 0");
     }
 
     let mut scores = Vec::new();
     for _ in 0..length {
-        scores.push(Arc::new(Mutex::new(0)));
+        scores.push(Arc::new(Mutex::new((0, 0))));
     }
     
     scores
@@ -305,9 +315,9 @@ fn random_rounds(min: u32, max: u32) -> u32 {
 ///
 /// let scores_1 = run(&config_1, &players).unwrap();
 /// 
-/// assert_eq!(scores_1, [(36, "1"), (5, "2")]);
+/// assert_eq!([(scores_1[0].0, scores_1[0].2), (scores_1[1].0, scores_1[1].2)], [(36, "1"), (5, "2")]);
 /// ```
-pub fn run<'a>(config: &Config, players: &'a Vec<Player>) -> Result<Vec<(i32, &'a str)>, &'static str> {
+pub fn run<'a>(config: &Config, players: &'a Vec<Player>) -> Result<Vec<(i32, f32, &'a str)>, &'static str> {
     if players.len() < 2 {
         return Err("Too few players");
     }
@@ -334,9 +344,12 @@ pub fn run<'a>(config: &Config, players: &'a Vec<Player>) -> Result<Vec<(i32, &'
 
     let mut scores = scores.iter()
         .enumerate()
-        .map(|(i, v)| (*v.lock().unwrap(), players[i].get_name()))
+        .map(|(i, v)| {
+            let v = v.lock().unwrap();
+            (v.0, v.1 as f32 / (players.len() - 1) as f32, players[i].get_name())
+        })
         .collect::<Vec<_>>();
-    scores.sort();
+    scores.sort_unstable_by(|a, b| a.0.cmp(&b.0));
 
     Ok(scores.iter()
         .rev()
@@ -366,8 +379,8 @@ mod tests {
         let scores_1 = run(&config_1, &players).unwrap();
         let scores_2 = run(&config_2, &players).unwrap();
 
-        assert_eq!(scores_1, [(36, "1"), (5, "2")]);
-        assert_eq!(scores_2, [(14, "1"), (3, "2")]);
+        assert_eq!([(scores_1[0].0, scores_1[0].2), (scores_1[1].0, scores_1[1].2)], [(36, "1"), (5, "2")]);
+        assert_eq!([(scores_2[0].0, scores_2[0].2), (scores_2[1].0, scores_2[1].2)], [(14, "1"), (3, "2")]);
     }
 
     #[test]

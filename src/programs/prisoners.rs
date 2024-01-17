@@ -10,18 +10,6 @@ pub fn take_back_once_prisoner(last_moves: &[Move]) -> Color {
     Color::Green
 }
 
-pub fn friendly(_last_moves: &[Move]) -> Color {
-    Color::Green
-}
-
-pub fn evil(_last_moves: &[Move]) -> Color {
-    Color::Red
-}
-
-pub fn blue(_last_moves: &[Move]) -> Color {
-    Color::Blue
-}
-
 pub fn tit_for_tat_prisoner(last_moves: &[Move]) -> Color {
     if let Some(last_move) = last_moves.last() {
         if last_move.1 == Color::Red {

@@ -1,5 +1,17 @@
 use crate::programs::prelude::*;
 
+pub fn friendly(_last_moves: &[Move]) -> Color {
+    Color::Green
+}
+
+pub fn evil(_last_moves: &[Move]) -> Color {
+    Color::Red
+}
+
+pub fn blue(_last_moves: &[Move]) -> Color {
+    Color::Blue
+}
+
 pub fn random(_last_moves: &[Move]) -> Color {
     *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
 }

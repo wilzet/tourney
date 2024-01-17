@@ -13,7 +13,7 @@ fn main() {
         }
     };
 
-    println!("Program start\n");
+    println!("\nTournament start\n");
 
     let players = vec![
         Player::with_name("Take back 1", take_back_once_prisoner),
@@ -40,10 +40,15 @@ fn main() {
 
     let scores = run(&config, &players).unwrap();
 
-    println!("{0} rounds!", config.rounds());
+    println!("{0} rounds!\n", config.rounds());
+    println!("no. program_name                     avg_score   rel_win_ratio");
+    println!("--------------------------------------------------------------");
+
     for (i, v) in scores.iter().enumerate() {
-        println!("{0}. {2} - {1:.2}", i + 1, v.0 as f32 / players.len() as f32, v.1);
+        let placement = format!("{}.", i + 1);
+        let ratio = format!("({:.2}%)", v.1 * 100.0);
+        println!("{0:<3} {2:<32} {1:<11.2} {3:<8}", placement, v.0 as f32 / players.len() as f32, v.2, ratio);
     }
 
-    println!("\nProgram end");
+    println!("\nTournament end\n");
 }

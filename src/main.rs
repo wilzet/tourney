@@ -1,6 +1,6 @@
 use std::{env, process};
 use tourney::config::*;
-use tourney::programs::*;
+use tourney::programs::all::*;
 use tourney::game::Player;
 
 fn main() {

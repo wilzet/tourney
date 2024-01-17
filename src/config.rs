@@ -348,7 +348,10 @@ pub fn run<'a>(config: &Config, players: &'a Vec<Player>) -> Result<Vec<(i32, &'
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::programs::*;
+    use crate::programs::{
+        prisoners::*,
+        greedy::*,
+    };
 
     #[test]
     fn config_test() {

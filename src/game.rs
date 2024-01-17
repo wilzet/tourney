@@ -226,7 +226,7 @@ pub fn play(player_1: Player, player_2: Player, rounds: u32) -> (i32, i32) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::programs::greedy_blue_and_friendly;
+    use crate::programs::greedy::greedy_blue_and_friendly;
 
     fn test_strategy(last_moves: &[Move]) -> Color {
         if let Some(last_move) = last_moves.last() {

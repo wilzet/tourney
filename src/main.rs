@@ -42,7 +42,7 @@ fn main() {
 
     println!("{0} rounds!", config.rounds());
     for (i, v) in scores.iter().enumerate() {
-        println!("{0}. {2} - {1:.2}", i + 1, v.0 as f32 / players.len() as f32, v.1);
+        println!("{0}. {2} - {1:.2} ({3:.2}%)", i + 1, v.0 as f32 / players.len() as f32, v.2, v.1 * 100.0);
     }
 
     println!("\nProgram end");

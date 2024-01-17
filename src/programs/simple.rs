@@ -22,8 +22,8 @@ pub fn copy(last_moves: &[Move]) -> Color {
 
 pub fn smarter_copy(last_moves: &[Move]) -> Color {
     match last_moves.last().map(|m| m.1) {
-    Some(Color::Blue) => *[Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
-    Some(opponent_move) => opponent_move,
-    _ => *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
+        Some(Color::Blue) => *[Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
+        Some(opponent_move) => opponent_move,
+        _ => *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
     }
 }

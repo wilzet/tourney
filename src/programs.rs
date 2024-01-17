@@ -131,90 +131,6 @@ pub fn random(_last_moves: &[Move]) -> Color {
     *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
 }
 
-pub fn greedy_if_winning_else_friendly(last_moves: &[Move]) -> Color {
-    let scores = last_moves.iter()
-        .fold((0, 0), |scores_acc, m| {
-            match m {
-                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
-                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
-                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
-                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
-                (Color::Blue, Color::Blue) => scores_acc,
-                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
-                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
-            }
-        });
-    
-    if scores.0 > scores.1 {
-        return Color::Blue;
-    }
-
-    Color::Green
-}
-
-pub fn greedy_if_winning_else_evil(last_moves: &[Move]) -> Color {
-    let scores = last_moves.iter()
-        .fold((0, 0), |scores_acc, m| {
-            match m {
-                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
-                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
-                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
-                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
-                (Color::Blue, Color::Blue) => scores_acc,
-                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
-                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
-            }
-        });
-    
-    if scores.0 > scores.1 {
-        return Color::Blue;
-    }
-
-    Color::Red
-}
-
-pub fn greedy_if_2x_score_else_friendly(last_moves: &[Move]) -> Color {
-    let scores = last_moves.iter()
-        .fold((0, 0), |scores_acc, m| {
-            match m {
-                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
-                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
-                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
-                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
-                (Color::Blue, Color::Blue) => scores_acc,
-                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
-                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
-            }
-        });
-    
-    if scores.0 >= scores.1 * 2 && scores.0 != scores.1 {
-        return Color::Blue;
-    }
-
-    Color::Green
-}
-
-pub fn greedy_if_2x_score_else_evil(last_moves: &[Move]) -> Color {
-    let scores = last_moves.iter()
-        .fold((0, 0), |scores_acc, m| {
-            match m {
-                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
-                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
-                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
-                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
-                (Color::Blue, Color::Blue) => scores_acc,
-                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
-                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
-            }
-        });
-    
-    if scores.0 >= scores.1 * 2 && scores.0 != scores.1 {
-        return Color::Blue;
-    }
-
-    Color::Red
-}
-
 pub fn chat_gpt_adaptive(last_moves: &[Move]) -> Color {
     if let Some(opponent_last_move) = last_moves.last().map(|m| m.1) {
         return match opponent_last_move {
@@ -260,6 +176,56 @@ pub fn chat_gpt_versatile(last_moves: &[Move]) -> Color {
         Some(Color::Green) => Color::Red,
         _ => Color::Green,
     }
+}
+
+pub fn cooperate_until_defection(last_moves: &[Move]) -> Color {
+    if last_moves.iter().any(|m| m.1 == Color::Red) {
+        return *[Color::Red, Color::Blue].choose(&mut rand::thread_rng()).unwrap();
+    }
+
+    Color::Green
+}
+
+pub fn greedy_if_winning_else_random(last_moves: &[Move]) -> Color {
+    let scores = last_moves.iter()
+        .fold((0, 0), |scores_acc, m| {
+            match m {
+                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
+                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
+                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
+                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
+                (Color::Blue, Color::Blue) => scores_acc,
+                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
+                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
+            }
+        });
+    
+    if scores.0 > scores.1 {
+        return Color::Blue;
+    }
+
+    *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
+}
+
+pub fn greedy_if_2x_score_else_random(last_moves: &[Move]) -> Color {
+    let scores = last_moves.iter()
+        .fold((0, 0), |scores_acc, m| {
+            match m {
+                (Color::Red, Color::Red) => (scores_acc.0 + 1, scores_acc.1 + 1),
+                (Color::Red, Color::Green) => (scores_acc.0 + 3, scores_acc.1),
+                (Color::Green, Color::Red) => (scores_acc.0, scores_acc.1 + 3),
+                (Color::Green, Color::Green) => (scores_acc.0 + 2, scores_acc.1 + 2),
+                (Color::Blue, Color::Blue) => scores_acc,
+                (Color::Blue, _) => (scores_acc.0 - 1, scores_acc.1 + 1),
+                (_, Color::Blue) => (scores_acc.0 + 1, scores_acc.1 - 1),
+            }
+        });
+    
+    if scores.0 >= scores.1 * 2 && scores.0 != scores.1 {
+        return Color::Blue;
+    }
+
+    *[Color::Red, Color::Green, Color::Blue].choose(&mut rand::thread_rng()).unwrap()
 }
 
 #[cfg(test)]
@@ -324,36 +290,6 @@ mod tests {
     }
 
     #[test]
-    fn greedy_if_winning_else_friendly_test() {
-        assert!(greedy_if_winning_else_friendly(&[]) == Color::Green);
-        assert!(greedy_if_winning_else_friendly(&[(Color::Green, Color::Red)]) == Color::Green);
-        assert!(greedy_if_winning_else_friendly(&[(Color::Green, Color::Blue), (Color::Blue, Color::Green)]) == Color::Green);
-        assert!(greedy_if_winning_else_friendly(&[(Color::Green, Color::Green), (Color::Green, Color::Blue)]) == Color::Blue);
-    }
-
-    #[test]
-    fn greedy_if_winning_else_evil_test() {
-        assert!(greedy_if_winning_else_evil(&[]) == Color::Red);
-        assert!(greedy_if_winning_else_evil(&[(Color::Red, Color::Red)]) == Color::Red);
-        assert!(greedy_if_winning_else_evil(&[(Color::Red, Color::Blue), (Color::Blue, Color::Green)]) == Color::Red);
-        assert!(greedy_if_winning_else_evil(&[(Color::Red, Color::Green), (Color::Blue, Color::Blue)]) == Color::Blue);
-    }
-
-    #[test]
-    fn greedy_if_2x_score_else_friendly_test() {
-        assert!(greedy_if_2x_score_else_friendly(&[]) == Color::Green);
-        assert!(greedy_if_2x_score_else_friendly(&[(Color::Green, Color::Blue)]) == Color::Blue);
-        assert!(greedy_if_2x_score_else_friendly(&[(Color::Green, Color::Green), (Color::Green, Color::Blue)]) == Color::Blue);
-    }
-
-    #[test]
-    fn greedy_if_2x_score_else_evil_test() {
-        assert!(greedy_if_2x_score_else_evil(&[]) == Color::Red);
-        assert!(greedy_if_2x_score_else_evil(&[(Color::Red, Color::Blue)]) == Color::Blue);
-        assert!(greedy_if_2x_score_else_evil(&[(Color::Red, Color::Red), (Color::Red, Color::Blue)]) == Color::Blue);
-    }
-
-    #[test]
     fn chat_gpt_adaptive_test() {
         assert!(chat_gpt_adaptive(&[(Color::Green, Color::Red)]) == Color::Blue);
         assert!(chat_gpt_adaptive(&[(Color::Green, Color::Green)]) == Color::Red);
@@ -364,5 +300,21 @@ mod tests {
     fn chat_gpt_proactive_test() {
         assert!(chat_gpt_proactive(&[(Color::Green, Color::Green)]) == Color::Red);
         assert!(chat_gpt_proactive(&[(Color::Green, Color::Blue)]) == Color::Green);
+    }
+
+    #[test]
+    fn cooperate_until_defection_test() {
+        assert!(cooperate_until_defection(&[(Color::Green, Color::Green)]) == Color::Green);
+        assert!(cooperate_until_defection(&[(Color::Green, Color::Red)]) != Color::Green);
+    }
+
+    #[test]
+    fn greedy_if_winning_else_random_test() {
+        assert!(greedy_if_winning_else_random(&[(Color::Red, Color::Green)]) == Color::Blue);
+    }
+
+    #[test]
+    fn greedy_if_2x_score_else_random_test() {
+        assert!(greedy_if_2x_score_else_random(&[(Color::Red, Color::Blue)]) == Color::Blue);
     }
 }

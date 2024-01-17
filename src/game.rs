@@ -223,6 +223,21 @@ pub fn play(player_1: Player, player_2: Player, rounds: u32) -> (i32, i32) {
     }
 }
 
+pub fn calculate_scores(last_moves: &[Move]) -> (i32, i32) {
+    last_moves.iter()
+        .fold((0, 0), |acc, m| {
+            match m {
+                (Color::Red, Color::Red) => (acc.0 + 1, acc.1 + 1),
+                (Color::Red, Color::Green) => (acc.0 + 3, acc.1),
+                (Color::Green, Color::Red) => (acc.0, acc.1 + 3),
+                (Color::Green, Color::Green) => (acc.0 + 2, acc.1 + 2),
+                (Color::Blue, Color::Blue) => acc,
+                (Color::Blue, _) => (acc.0 - 1, acc.1 + 1),
+                (_, Color::Blue) => (acc.0 + 1, acc.1 - 1),
+            }
+        })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -261,5 +276,11 @@ mod tests {
         assert_eq!(play(p_1.clone(), p_2.clone(), 10), (21, 14));
         assert_eq!(play(p_1.clone(), p_1.clone(), 100), (149, 149));
         assert_ne!(p_1.get_name(), p_2.get_name());
+    }
+
+    #[test]
+    fn score_calculation_test() {
+        assert_eq!(calculate_scores(&[]), (0, 0));
+        assert_eq!(calculate_scores(&[(Color::Green, Color::Green), (Color::Blue, Color::Red)]), (1, 3));
     }
 }

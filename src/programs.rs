@@ -1,7 +1,11 @@
 mod prelude {
     pub use std::cmp;
     pub use rand::prelude::*;
-    pub use crate::game::{Color, Move};
+    pub use crate::game::{
+        Color,
+        Move,
+        calculate_scores,
+    };
 }
 
 pub mod all {

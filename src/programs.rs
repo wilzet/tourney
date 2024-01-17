@@ -86,20 +86,19 @@ pub fn greedy_blue_and_evil(last_moves: &[Move]) -> Color {
 
 /// `try_to_guess` will try to make the "best" response based only on what the opponent has played the most of.
 pub fn try_to_guess(last_moves: &[Move]) -> Color {
-    let mut belief = (0, 0, 0);
-    last_moves.iter()
-        .for_each(|x| match x.1 {
-            Color::Red => belief.0 += 1,
-            Color::Green => belief.2 += 1,
-            Color::Blue => belief.1 += 1,
+    let (red_count, green_count, blue_count) = last_moves.iter()
+        .fold((0, 0, 0), |(r, g, b), m| match m.1 {
+            Color::Red => (r + 1, g, b),
+            Color::Green => (r, g + 1, b),
+            Color::Blue => (r, g, b + 1),
         });
     
     // OMM - Opponent's Most likely Move
-    match belief.0.cmp(&belief.1) {
+    match red_count.cmp(&green_count) {
         // OMM is Blue, Green and Blue, or Green
         // "Best" response is Green
         cmp::Ordering::Less => Color::Green,
-        cmp::Ordering::Equal => match belief.1.cmp(&belief.2) {
+        cmp::Ordering::Equal => match green_count.cmp(&blue_count) {
             // OMM is Blue
             // "Best" response is Green
             cmp::Ordering::Less => Color::Green,
@@ -112,7 +111,7 @@ pub fn try_to_guess(last_moves: &[Move]) -> Color {
             // increasing the Blue count may not be bad either
             cmp::Ordering::Greater => *[Color::Red, Color::Blue].choose(&mut rand::thread_rng()).unwrap(),
         }
-        cmp::Ordering::Greater => match belief.0.cmp(&belief.2) {
+        cmp::Ordering::Greater => match red_count.cmp(&blue_count) {
             // OMM is Blue
             // "Best" response is Green
             cmp::Ordering::Less => Color::Green,
@@ -188,7 +187,7 @@ pub fn greedy_if_2x_score_else_friendly(last_moves: &[Move]) -> Color {
             }
         });
     
-    if last_moves.len() > 0 && scores.0 >= scores.1 * 2 {
+    if scores.0 >= scores.1 * 2 && scores.0 != scores.1 {
         return Color::Blue;
     }
 
@@ -209,7 +208,7 @@ pub fn greedy_if_2x_score_else_evil(last_moves: &[Move]) -> Color {
             }
         });
     
-    if last_moves.len() > 0 && scores.0 >= scores.1 * 2 {
+    if scores.0 >= scores.1 * 2 && scores.0 != scores.1 {
         return Color::Blue;
     }
 

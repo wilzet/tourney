@@ -1,6 +1,6 @@
 use std::{env, process};
 use tourney::config::*;
-use tourney::programs::*;
+use tourney::programs::all::*;
 use tourney::game::Player;
 
 fn main() {
@@ -26,13 +26,14 @@ fn main() {
         Player::with_name("Greedy blue", blue),
         Player::with_name("Try to guess", try_to_guess),
         Player::with_name("Random", random),
-        Player::with_name("Friendly, greedy if winning", greedy_if_winning_else_friendly),
-        Player::with_name("Evil, greedy if winning", greedy_if_winning_else_evil),
-        Player::with_name("Friendly, greedy if 2x", greedy_if_2x_score_else_friendly),
-        Player::with_name("Evil, greedy if 2x", greedy_if_2x_score_else_evil),
         Player::with_name("ChatGPT adaptive", chat_gpt_adaptive),
         Player::with_name("ChatGPT proactive", chat_gpt_proactive),
         Player::with_name("ChatGPT versatile", chat_gpt_versatile),
+        Player::with_name("Cooperate until defection", cooperate_until_defection),
+        Player::with_name("Random, greedy if winning", greedy_if_winning_else_random),
+        Player::with_name("Random, greedy if 2x", greedy_if_2x_score_else_random),
+        Player::with_name("Copy opponent", copy),
+        Player::with_name("Copy opponent, unless blue", smarter_copy),
     ];
 
     println!("Pairing every program... ({0} games)\n", players.len() * (players.len() - 1) / 2);

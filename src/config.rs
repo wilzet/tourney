@@ -88,7 +88,7 @@ impl Config {
                             }
 
                             if value > MAX_THREADS {
-                                return Err(concat!("Value must be less than or equal to", MAX_THREADS_STRING, " for argument: --threads"));
+                                return Err(concat!("Value must be less than or equal to ", MAX_THREADS_STRING, " for argument: --threads"));
                             }
 
                             return Err("Value must be greater than 0 for argument: --threads");
@@ -135,8 +135,8 @@ impl Config {
     /// 
     /// * `--min <u32>` - The minimum amount of rounds
     /// * `--max <u32>` - The maximum amount of rounds
-    /// * `--games` - Displays all games outcomes if this is provided
-    /// * `--threads` - Specify the amount of threads used
+    /// * `--games` - Displays all the games outcomes if this is provided
+    /// * `--threads <u32>` - Specify the amount of threads used
     /// 
     /// If only `--min` is provided, the config will have `rounds == --min`.
     /// Likewise if only `--max` is provided, the config will have `rounds == --max`.
@@ -182,7 +182,7 @@ impl Config {
         Config {
             rounds: random_rounds(MIN_ROUNDS, MAX_ROUNDS),
             show_games: false,
-            threadpool: ThreadPool::with_name("Games".into(), 20),
+            threadpool: ThreadPool::with_name("Games".into(), DEFAULT_THREADS),
         }
     }
 
@@ -292,7 +292,7 @@ fn random_rounds(min: u32, max: u32) -> u32 {
 /// # Examples
 /// 
 /// ```
-/// # use tourney::programs::*;
+/// # use tourney::programs::all::*;
 /// use tourney::config::*;
 /// use tourney::game::Player;
 /// 
@@ -348,7 +348,10 @@ pub fn run<'a>(config: &Config, players: &'a Vec<Player>) -> Result<Vec<(i32, &'
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::programs::*;
+    use crate::programs::{
+        prisoners::*,
+        greedy::*,
+    };
 
     #[test]
     fn config_test() {

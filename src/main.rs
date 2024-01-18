@@ -34,6 +34,7 @@ fn main() {
         Player::with_name("Random, greedy if 2x", greedy_if_2x_score_else_random),
         Player::with_name("Copy opponent", copy),
         Player::with_name("Copy opponent, unless blue", smarter_copy),
+        Player::with_name("Match opponent, 15 greedy start", greed_first_15),
     ];
 
     println!("Pairing every program... ({0} games)\n", players.len() * (players.len() - 1) / 2);

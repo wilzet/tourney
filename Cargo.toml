@@ -1,7 +1,13 @@
 [package]
 name = "tourney"
 version = "0.1.0"
+authors = "wilzet"
 edition = "2021"
+description = "Game theory tournament"
+readme = "README.md"
+repository = "https://github.com/wilzet/tourney"
+license = "MIT"
+license-file = "LICENSE.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

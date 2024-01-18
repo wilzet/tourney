@@ -1,7 +1,7 @@
 [package]
 name = "tourney"
 version = "0.1.0"
-authors = "wilzet"
+authors = ["wilzet"]
 edition = "2021"
 description = "Game theory tournament"
 readme = "README.md"
